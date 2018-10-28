@@ -1,3 +1,5 @@
+
+
 #region functions
 Function Get-Tree($Path,$Include='*') {
   @(Get-Item $Path -Include $Include -Force) +
@@ -44,7 +46,7 @@ Try {
     New-Item -ItemType Directory -Path $1803Dir
   }
 } Catch {
-  Write-Error 'Failed to create folder'
+  Write-Error "Failed to create the following folder: $1803Dir"
   Return
 }
 #endregion dirChecks
@@ -81,9 +83,24 @@ Else{
 
 #region install1803
 If($status -eq 'Download') {
-  ##downloadhere
+  Try {
+    ## Use suburl.yourdomain.com/labtech/transfer
+    $AutomateURL = 'https://support.dkbinnovative.com/labtech/Transfer/OS/Windows10'
+    If($osVer -eq 'x64') {
+      IWR -Uri "$AutomateURL/Prox64.1803.zip" -Outfile "$1803Dir\Prox64.1803.zip"
+      $status = 'Install'
+    } Else {
+      IWR -Uri "$AutomateURL/Prox86.1803.zip" -Outfile "$1803Dir\Prox86.1803.zip"
+      $status = 'Install'
+    }
+  } Catch {
+    Write-Error 'Encountered a problem when trying to download the Windows 10 1803 ISO'
+  }
 }
 ElseIf($status -eq 'Install') {
   ##installhere
+  Write-Output 'Install'
+} Else {
+    Write-Output "Could not find a known status of the var Status. Output: $status"
 }
 #endregion install1803
