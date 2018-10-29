@@ -88,7 +88,7 @@ If($status -eq 'Download') {
     If($servFile -gt (Get-Item $1803Zip).length) {
       Write-Error 'The downloaded size of $1803Zip does not match the server version, unable to install the update.'
     } Else {
-      Write-Information 'Successfully downloaded the 1803 update! Setup is currently unpacking the setup files, then will begin the installation.'
+      Write-Information 'Successfully downloaded the 1803 update! Your system is currently unpacking the setup files, then will begin the installation process.'
       $status = 'Install'
     }
   } Catch {
