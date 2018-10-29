@@ -1,5 +1,3 @@
-
-
 #region functions
 Function Get-Tree($Path,$Include='*') {
   @(Get-Item $Path -Include $Include -Force) +
@@ -27,9 +25,9 @@ If($osBuild -ge 1803) {
 Try {
   If((Get-WmiObject win32_operatingsystem | Select-Object -ExpandProperty osarchitecture) -eq '64-bit') {
     $osVer = 'x64'
-    $ltServFile = 3927745135
+    $servFile = 3927745135
   } Else {
-    $ltServFile = 2942440134
+    $servFile = 2942440134
     $osVer = 'x86'
   }
 } Catch {
@@ -39,9 +37,13 @@ Try {
 #endregion checkOSInfo
 
 
+$1803Dir = "$env:windir\LTSvc\packages\OS\win10.1803"
+$1803Zip = "$1803Dir\Pro$osVer.1803.zip"
+$AutomateURL = "https://support.dkbinnovative.com/labtech/Transfer/OS/Windows10/Pro$osVer.1803.zip"
+
+
 #region dirChecks
 Try {
-  $1803Dir = "$env:windir\LTSvc\packages\OS\win10.1803"
   If(!(Test-Path $1803Dir)) {
     New-Item -ItemType Directory -Path $1803Dir
   }
@@ -53,13 +55,11 @@ Try {
 
 
 #region fileChecks
-$zipPath = "$1803Dir\Pro$osVer.1803.zip"
-$checkZip = Test-Path $zipPath -PathType Leaf
+$checkZip = Test-Path $1803Zip -PathType Leaf
 If($checkZip) {
-  $clientFile = Get-Item $zipPath
-  If($ltServFile -gt $clientFile.Length) {
+  If($servFile -gt (Get-Item $1803Zip)) {
     Remove-Tree -Path $1803Dir
-    $checkFile = Test-Path $zipPath -PathType Leaf
+    $checkFile = Test-Path $1803Zip -PathType Leaf
     If(!$checkFile) {
       $status = 'Download'
       Write-Output "The existing installation files for the 1803 update were incomplete or corrupt. Deleted existing files and now starting a new download."
@@ -84,13 +84,11 @@ Else{
 #region install1803
 If($status -eq 'Download') {
   Try {
-    ## Use suburl.yourdomain.com/labtech/transfer
-    $AutomateURL = 'https://support.dkbinnovative.com/labtech/Transfer/OS/Windows10'
-    If($osVer -eq 'x64') {
-      IWR -Uri "$AutomateURL/Prox64.1803.zip" -Outfile "$1803Dir\Prox64.1803.zip"
-      $status = 'Install'
+    IWR -Uri $AutomateURL -Outfile $1803Zip
+    If($servFile -gt (Get-Item $1803Zip).length) {
+      Write-Error 'The downloaded size of $1803Zip does not match the server version, unable to install the update.'
     } Else {
-      IWR -Uri "$AutomateURL/Prox86.1803.zip" -Outfile "$1803Dir\Prox86.1803.zip"
+      Write-Information 'Successfully downloaded the 1803 update! Setup is currently unpacking the setup files, then will begin the installation.'
       $status = 'Install'
     }
   } Catch {
