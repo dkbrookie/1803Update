@@ -24,8 +24,7 @@ Function Install-withProgress{
 
 
 #region intro
-$desktop = [Environment]::GetFolderPath("CommonDesktopDirectory")
-$logFile = "$desktop\1803 Upgrade Status.txt"
+$logFile = "C:\Users\Public\Desktop\1803 Upgrade Status.txt"
 $dateTime = Get-Date
 Write-Output "--------------------------------------------------------" | Out-File $logFile -Append
 Write-Output "Installation start time triggered by user: $dateTime" | Out-File $logFile -Append
