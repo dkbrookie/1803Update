@@ -30,10 +30,10 @@ $rbCheck2 = Get-Item "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\WindowsUpd
 $rbCheck3 = Get-ItemProperty "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager" -Name PendingFileRenameOperations -EA Ignore
 
 If($rbCheck1 -ne $Null -or $rbCheck2 -ne $Null -or $rbCheck3 -ne $Null){
-    Write-Output "This system is pending a reboot, unable to proceed. Please restart your computer and try again."
+    Write-Output "This system is pending a reboot, unable to proceed. Please restart your computer and try again." | Out-File $logFile -Append
     Break
 } Else {
-    Write-Output "Automation has verified there is no reboot pending."
+    Write-Output "Automation has verified there is no reboot pending." | Out-File $logFile -Append
 }
 
 $desktop = [Environment]::GetFolderPath("Desktop")
