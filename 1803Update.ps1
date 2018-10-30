@@ -23,6 +23,14 @@ Function Install-withProgress{
 #endregion functions
 
 
+#region intro
+$desktop = [Environment]::GetFolderPath("Desktop")
+$logFile = "$desktop\1803 Upgrade Status.txt"
+$dateTime = Get-Date
+Write-Output "--------------------------------------------------------" | Out-File $logFile -Append
+Write-Output "Installation start time triggered by user: $dateTime" | Out-File $logFile -Append
+#endregion intro
+
 
 #region checkOSInfo
 $rbCheck1 = Get-ChildItem "HKLM:\Software\Microsoft\Windows\CurrentVersion\Component Based Servicing\RebootPending" -EA Ignore
@@ -36,11 +44,6 @@ If($rbCheck1 -ne $Null -or $rbCheck2 -ne $Null -or $rbCheck3 -ne $Null){
     Write-Output "Automation has verified there is no reboot pending." | Out-File $logFile -Append
 }
 
-$desktop = [Environment]::GetFolderPath("Desktop")
-$logFile = "$desktop\1803 Upgrade Status.txt"
-$dateTime = Get-Date
-Write-Output "--------------------------------------------------------" | Out-File $logFile -Append
-Write-Output "Installation start time triggered by user: $dateTime" | Out-File $logFile -Append
 If([System.Environment]::OSVersion.Version.Major -ne 10) {
   Write-Output "Your version of Windows does not support the 1803 upgrade. Exiting script." | Out-File $logFile -Append
   Break
