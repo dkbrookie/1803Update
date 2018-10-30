@@ -106,7 +106,7 @@ If($checkZip) {
 }
 Else {
   $status = 'Download'
-  Write-Output "The required files to install the 1803 update are not present, downloading required files now." | Out-File $logFile -Append
+  Write-Output "The required files to install the 1803 update are not present, downloading required files now. Keep in mind this update is VERY large, and may take 30min+ to download (depending on your connection speed)." | Out-File $logFile -Append
 }
 #endregion fileChecks
 
@@ -131,9 +131,9 @@ Try {
     If(!$7zipCheck) {
       Start-BitsTransfer -Source $automate7zipURL -Destination $1803Dir
     }
-    Write-Output 'Unpacking 1803 installation files...' | Out-File $logFile -Append
+    Write-Output 'Unpacking 1803 installation files...this will take awhile.' | Out-File $logFile -Append
     &$7zip x $1803Zip -o"$1803Dir" -y | Out-Null
-    Write-Output 'Unpacking complete! Beginning 1803 upgrade installation' | Out-File $logFile -Append
+    Write-Output 'Unpacking complete! Beginning 1803 upgrade installation.' | Out-File $logFile -Append
     $status = 'Install'
   }
   ##Install
