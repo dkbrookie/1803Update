@@ -8,7 +8,7 @@ Function Remove-Tree($Path,$Include='*') {
   Get-Tree $Path $Include | Remove-Item -Force -Recurse
 }
 
-Function Install-withProgress{
+Function Install-withProgress {
   $localFolder= (Get-Location).path
   $process = Start-Process -FilePath "$localFolder\Installer.exe" -ArgumentList "/silent /accepteula" -PassThru
   For($i = 0; $i -le 100; $i = ($i + 1) % 100) {
