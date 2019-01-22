@@ -31,6 +31,15 @@ Write-Output "Installation start time triggered by user: $dateTime" | Out-File $
 #endregion intro
 
 
+#region checkDisk
+$spaceAvailable = [math]::round((Get-PSDrive C | Select -ExpandProperty Free) / 1GB,0)
+If($spaceAvailable -lt 10) {
+  Write-Output "You only have a total of $spaceAvailable GBs available, this upgrade needs 10GBs or more to complete successfully" | Out-File $logFile -Append
+  Break
+}
+#region checkDisk
+
+
 #region checkOSInfo
 $rbCheck1 = Get-ChildItem "HKLM:\Software\Microsoft\Windows\CurrentVersion\Component Based Servicing\RebootPending" -EA Ignore
 $rbCheck2 = Get-Item "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\WindowsUpdate\Auto Update\RebootRequired" -EA Ignore
