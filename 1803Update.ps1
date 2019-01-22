@@ -33,7 +33,7 @@ Write-Output "Installation start time triggered by user: $dateTime" | Out-File $
 
 #region checkDisk
 $spaceAvailable = [math]::round((Get-PSDrive C | Select -ExpandProperty Free) / 1GB,0)
-If($spaceAvailable -lt 10) {
+If($spaceAvailable -lt 15) {
   Write-Output "You only have a total of $spaceAvailable GBs available, this upgrade needs 10GBs or more to complete successfully" | Out-File $logFile -Append
   Break
 }
