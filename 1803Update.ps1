@@ -123,7 +123,8 @@ Else {
 #region download/install
 If($status -eq 'Download') {
   Try {
-    Start-BitsTransfer -Source $automate1803URL -Destination $1803Zip
+    (New-Object System.Net.WebClient).DownloadFile($automate1803URL,$1803Zip)
+    #Start-BitsTransfer -Source $automate1803URL -Destination $1803Zip
     If($servFile -gt (Get-Item $1803Zip).Length) {
       Write-Error "The downloaded size of $1803Zip does not match the server version, unable to install the update." | Out-File $logFile -Append
     } Else {
@@ -138,7 +139,8 @@ Try {
   If($status -eq 'Unzip') {
     $7zipCheck = Test-Path $7zip -PathType Leaf
     If(!$7zipCheck) {
-      Start-BitsTransfer -Source $automate7zipURL -Destination $1803Dir
+      (New-Object System.Net.WebClient).DownloadFile($automate7zipURL,$1803Dir)
+      #Start-BitsTransfer -Source $automate7zipURL -Destination $1803Dir
     }
     Write-Output 'Unpacking 1803 installation files...this will take awhile.' | Out-File $logFile -Append
     &$7zip x $1803Zip -o"$1803Dir" -y | Out-Null
