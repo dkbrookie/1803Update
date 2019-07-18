@@ -24,7 +24,8 @@ Function Install-withProgress {
 
 
 #region intro
-$logFile = "C:\Users\Public\Desktop\1803 Upgrade Status.txt"
+$publicDesktop = [Environment]::GetFolderPath("CommonDesktopDirectory")
+$logFile = "$publicDesktop\1803 Upgrade Status.txt"
 $dateTime = Get-Date
 Write-Output "--------------------------------------------------------" | Out-File $logFile -Append
 Write-Output "Installation start time triggered by user: $dateTime" | Out-File $logFile -Append
@@ -65,9 +66,11 @@ If($osBuild -ge 1803) {
 
 Try {
   If((Get-WmiObject win32_operatingsystem | Select-Object -ExpandProperty osarchitecture) -eq '64-bit') {
-    $osVer = 'x64'
+    ## This is the size of the 64-bit file once downloaded so we can compare later and make sure it's complete
     $servFile = 3927745135
+    $osVer = 'x64'
   } Else {
+    ## This is the size of the 32-bit file once downloaded so we can compare later and make sure it's complete
     $servFile = 2942440134
     $osVer = 'x86'
   }
@@ -96,6 +99,7 @@ Try {
 
 $checkZip = Test-Path $1803Zip -PathType Leaf
 If($checkZip) {
+  ## If the source file size is larger than the downloaded file size, nuke the download and start over. This is an obv download fail issue.
   If($servFile -gt (Get-Item $1803Zip).Length) {
     Remove-Tree -Path $1803Dir
     $checkFile = Test-Path $1803Zip -PathType Leaf
@@ -124,7 +128,7 @@ Else {
 If($status -eq 'Download') {
   Try {
     (New-Object System.Net.WebClient).DownloadFile($automate1803URL,$1803Zip)
-    #Start-BitsTransfer -Source $automate1803URL -Destination $1803Zip
+    ## Again check the downloaded file size vs the server file size
     If($servFile -gt (Get-Item $1803Zip).Length) {
       Write-Error "The downloaded size of $1803Zip does not match the server version, unable to install the update." | Out-File $logFile -Append
     } Else {
@@ -135,18 +139,19 @@ If($status -eq 'Download') {
     Write-Error 'Encountered a problem when trying to download the Windows 10 1803 ISO' | Out-File $logFile -Append
   }
 }
+
 Try {
   If($status -eq 'Unzip') {
     $7zipCheck = Test-Path $7zip -PathType Leaf
     If(!$7zipCheck) {
       (New-Object System.Net.WebClient).DownloadFile($automate7zipURL,$1803Dir)
-      #Start-BitsTransfer -Source $automate7zipURL -Destination $1803Dir
     }
     Write-Output 'Unpacking 1803 installation files...this will take awhile.' | Out-File $logFile -Append
     &$7zip x $1803Zip -o"$1803Dir" -y | Out-Null
     Write-Output 'Unpacking complete! Beginning 1803 upgrade installation.' | Out-File $logFile -Append
     $status = 'Install'
   }
+
   ##Install
   If($status -eq 'Install') {
     Write-Output 'The 1803 upgrade installation has now been started silently in the background. No action from you is required, but please note a reboot will be reqired during the installation prcoess. It is highly recommended you save all of your open files!' | Out-File $logFile -Append
@@ -169,4 +174,4 @@ Try {
 } Catch {
   Write-Error 'Setup ran into an issue while attempting to install the 1803 upgrade.'
 }
-  #endregion download/install
+#endregion download/install
