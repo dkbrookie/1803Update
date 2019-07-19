@@ -34,7 +34,7 @@ Write-Output "Installation start time triggered by user: $dateTime" | Out-File $
 
 #region checkDisk
 $spaceAvailable = [math]::round((Get-PSDrive C | Select -ExpandProperty Free) / 1GB,0)
-If($spaceAvailable -lt 15) {
+If ($spaceAvailable -lt 15) {
   Write-Output "You only have a total of $spaceAvailable GBs available, this upgrade needs 10GBs or more to complete successfully" | Out-File $logFile -Append
   Break
 }
@@ -46,26 +46,26 @@ $rbCheck1 = Get-ChildItem "HKLM:\Software\Microsoft\Windows\CurrentVersion\Compo
 $rbCheck2 = Get-Item "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\WindowsUpdate\Auto Update\RebootRequired" -EA Ignore
 $rbCheck3 = Get-ItemProperty "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager" -Name PendingFileRenameOperations -EA Ignore
 
-If($rbCheck1 -ne $Null -or $rbCheck2 -ne $Null -or $rbCheck3 -ne $Null){
+If ($rbCheck1 -ne $Null -or $rbCheck2 -ne $Null -or $rbCheck3 -ne $Null){
     Write-Output "This system is pending a reboot, unable to proceed. Please restart your computer and try again." | Out-File $logFile -Append
     Break
 } Else {
     Write-Output "Automation has verified there is no reboot pending." | Out-File $logFile -Append
 }
 
-If([System.Environment]::OSVersion.Version.Major -ne 10) {
+If ([System.Environment]::OSVersion.Version.Major -ne 10) {
   Write-Output "Your version of Windows does not support the 1803 upgrade. Exiting script." | Out-File $logFile -Append
   Break
 }
 
 $osBuild = (Get-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion" -Name ReleaseId).ReleaseId
-If($osBuild -ge 1803) {
+If ($osBuild -ge 1803) {
   Write-Output "Your machine already has this patch installed! Exiting script." | Out-File $logFile -Append
   Break
 }
 
 Try {
-  If((Get-WmiObject win32_operatingsystem | Select-Object -ExpandProperty osarchitecture) -eq '64-bit') {
+  If ((Get-WmiObject win32_operatingsystem | Select-Object -ExpandProperty osarchitecture) -eq '64-bit') {
     ## This is the size of the 64-bit file once downloaded so we can compare later and make sure it's complete
     $servFile = 3927745135
     $osVer = 'x64'
@@ -89,7 +89,7 @@ $automate1803URL = "https://support.dkbinnovative.com/labtech/Transfer/OS/Window
 $automate7zipURL = "https://support.dkbinnovative.com/labtech/Transfer/OS/Windows10/7za.exe"
 
 Try {
-  If(!(Test-Path $1803Dir)) {
+  If (!(Test-Path $1803Dir)) {
     New-Item -ItemType Directory -Path $1803Dir | Out-Null
   }
 } Catch {
@@ -98,12 +98,12 @@ Try {
 }
 
 $checkZip = Test-Path $1803Zip -PathType Leaf
-If($checkZip) {
+If ($checkZip) {
   ## If the source file size is larger than the downloaded file size, nuke the download and start over. This is an obv download fail issue.
-  If($servFile -gt (Get-Item $1803Zip).Length) {
+  If ($servFile -gt (Get-Item $1803Zip).Length) {
     Remove-Tree -Path $1803Dir
     $checkFile = Test-Path $1803Zip -PathType Leaf
-    If(!$checkFile) {
+    If (!$checkFile) {
       $status = 'Download'
       Write-Output "The existing installation files for the 1803 update were incomplete or corrupt. Deleted existing files and started a new download." | Out-File $logFile -Append
     }
@@ -125,11 +125,11 @@ Else {
 
 
 #region download/install
-If($status -eq 'Download') {
+If ($status -eq 'Download') {
   Try {
     (New-Object System.Net.WebClient).DownloadFile($automate1803URL,$1803Zip)
     ## Again check the downloaded file size vs the server file size
-    If($servFile -gt (Get-Item $1803Zip).Length) {
+    If ($servFile -gt (Get-Item $1803Zip).Length) {
       Write-Error "The downloaded size of $1803Zip does not match the server version, unable to install the update." | Out-File $logFile -Append
     } Else {
       Write-Output 'Successfully downloaded the 1803 update!' | Out-File $logFile -Append
@@ -141,9 +141,9 @@ If($status -eq 'Download') {
 }
 
 Try {
-  If($status -eq 'Unzip') {
+  If ($status -eq 'Unzip') {
     $7zipCheck = Test-Path $7zip -PathType Leaf
-    If(!$7zipCheck) {
+    If (!$7zipCheck) {
       (New-Object System.Net.WebClient).DownloadFile($automate7zipURL,$1803Dir)
     }
     Write-Output 'Unpacking 1803 installation files...this will take awhile.' | Out-File $logFile -Append
@@ -153,7 +153,7 @@ Try {
   }
 
   ##Install
-  If($status -eq 'Install') {
+  If ($status -eq 'Install') {
     Write-Output 'The 1803 upgrade installation has now been started silently in the background. No action from you is required, but please note a reboot will be reqired during the installation prcoess. It is highly recommended you save all of your open files!' | Out-File $logFile -Append
     $localFolder= (Get-Location).path
     $process = Start-Process -FilePath "$1803Dir\Pro$osVer.1803\setup.exe" -ArgumentList "/auto upgrade /quiet" -PassThru
