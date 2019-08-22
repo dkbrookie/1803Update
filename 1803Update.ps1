@@ -1,7 +1,7 @@
 #region functions
 Function Get-Tree($Path,$Include='*') {
   @(Get-Item $Path -Include $Include -Force) +
-    (Get-ChildItem $Path -Recurse -Include $Include -Force) | Sort PSPath -Descending -Unique
+    (Get-ChildItem $Path -Recurse -Include $Include -Force) | Sort-Object PSPath -Descending -Unique
 }
 
 Function Remove-Tree($Path,$Include='*') {
@@ -33,7 +33,7 @@ Write-Output "Installation start time triggered by user: $dateTime" | Out-File $
 
 
 #region checkDisk
-$spaceAvailable = [math]::round((Get-PSDrive C | Select -ExpandProperty Free) / 1GB,0)
+$spaceAvailable = [math]::round((Get-PSDrive C | Select-Object -ExpandProperty Free) / 1GB,0)
 If ($spaceAvailable -lt 15) {
   Write-Output "You only have a total of $spaceAvailable GBs available, this upgrade needs 10GBs or more to complete successfully" | Out-File $logFile -Append
   Break
